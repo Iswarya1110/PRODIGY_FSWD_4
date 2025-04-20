@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #add8e6; /* Light blue background */
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+        h2 {
+            color: #4682b4; /* Darker blue for heading */
+        }
+        form {
+            background: #ffffff; /* White background for form */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: auto;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #b0c4de; /* Light blue-grey border */
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input[type="submit"] {
+            background-color: #4682b4; /* Blue button color */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #5f9ea0; /* Lighter blue on hover */
+        }
+        h3 {
+            color: #4682b4; /* Darker blue for subheading */
+        }
+        #chatLog {
+            background-color: #f0f8ff; /* Light blue background for chat log */
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: scroll;
+            border: 1px solid #b0c4de; /* Light blue-grey border for chat log */
+        }
+    </style>
+    <script>
+        // Function to fetch and display messages from the server
+        function fetchMessages() {
+            fetch('/messages')
+                .then(response => response.json())
+                .then(data => {
+                    let chatLog = document.getElementById('chatLog');
+                    chatLog.innerHTML = ''; // Clear current log
+                    data.forEach(msg => {
+                        chatLog.innerHTML += `<p><strong>${msg.user}:</strong> ${msg.message}</p>`;
+                    });
+                    chatLog.scrollTop = chatLog.scrollHeight; // Scroll to the bottom
+                });
+        }
+
+        // Call fetchMessages to update the chat log every 2 seconds
+        setInterval(fetchMessages, 2000);
+    </script>
+</head>
+<body>
+    <h2>Simple Chat App</h2>
+    <form method="POST" action="/" onsubmit="return sendMessage();">
+        <input type="text" name="user" placeholder="Your name" required><br><br>
+        <textarea name="message" placeholder="Type your message" rows="4" cols="40" required></textarea><br><br>
+        <input type="submit" value="Send">
+    </form>
+    <hr>
+    <h3>Chat Log:</h3>
+    <div id="chatLog" style="white-space: pre-wrap;">(chat messages appear here)</div>
+
+    <script>
+        // Function to submit the message and prevent page reload
+        function sendMessage() {
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+
+            fetch('/', {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            }).then(() => {
+                fetchMessages(); // Fetch and update chat log after sending a message
+                form.reset(); // Clear the form after submission
+            });
+
+            return false; // Prevent form from reloading the page
+        }
+    </script>
+</body>
+</html>
